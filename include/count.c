@@ -12,18 +12,12 @@ bool matchRGBA(Code a,Code b){
 void append(Code c,ResultArray* ra){
 	size_t l = ra -> length;
 	size_t s = sizeof(*(ra -> arr));
-	
-void append(unsigned char* color,void* result,size_t* result_size){
-	const size_t append_size = sizeof(Count) * 1;
-	realloc(result,*(size_t*)result_size + append_size);
-	memcpy((result + *(size_t*)result_size),color,sizeof(Code));
-	*(size_t*)result_size += append_size;
-	realloc(ra -> arr,s * (l + 1));
-	memcpy(
-		ra -> arr + s * l,
-		c,
-		sizeof(Code)
-	);
+	Result* tmp = calloc(l + 1,sizeof(Result));
+	memcpy(tmp,ra -> arr,s * l);
+	ra -> arr = calloc(l + 1,sizeof(Result));
+	memcpy(ra -> arr,tmp,s * l);
+	memcpy(ra -> arr + l,c,sizeof(Code));
+	(ra -> arr + l) -> count = 0;
 	ra -> length++;
 }
 
@@ -33,7 +27,7 @@ void count(Code c,ResultArray* ra){
 		append(c, ra);
 		count(c, ra);
 	} else {
-		(*(ra -> arr + i)).count += 1;
+		(ra -> arr + i) -> count++;
 		return;
 	}
 }

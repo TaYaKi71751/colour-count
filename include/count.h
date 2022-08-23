@@ -13,6 +13,8 @@ typedef struct {
 	size_t length;
 } ResultArray;
 
+extern char* to_json(ResultArray* ra);
+
 extern bool matchRGBA(Code a,Code b);
 
 extern void append(Code c, ResultArray* ra);

@@ -1,24 +1,24 @@
 #ifndef __COUNT_H__
 #define __COUNT_H__
 
-typedef struct {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char a;
-} Code;
+typedef unsigned char Code[4];
 
 typedef struct {
-	unsigned char rgba[4];
-	long long count;
-} Count;
+	Code rgba;
+	unsigned int count;
+} Result;
 
-extern bool matchRGBA(unsigned char* a,unsigned char* b);
+typedef struct {
+	Result* arr;
+	size_t length;
+} ResultArray;
 
-extern void append(unsigned char* color,void* result,size_t* result_size);
+extern bool matchRGBA(Code a,Code b);
 
-extern void count(unsigned char* color,void* result,size_t* result_size);
+extern void append(Code c, ResultArray* ra);
 
-extern int search(unsigned char* color, void* result, size_t* result_size);
+extern void count(Code c, ResultArray* ra);
+
+extern int search(Code c, ResultArray* ra);
 
 #endif

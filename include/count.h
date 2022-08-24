@@ -1,6 +1,8 @@
 #ifndef __COUNT_H__
 #define __COUNT_H__
 
+#include "../include/string.h"
+
 typedef unsigned char Code[4];
 
 typedef struct {
@@ -9,11 +11,11 @@ typedef struct {
 } Result;
 
 typedef struct {
-	Result* arr;
+	Result** arr;
 	size_t length;
 } ResultArray;
 
-extern char* to_json(ResultArray* ra);
+extern string* to_json(ResultArray* ra);
 
 extern bool matchRGBA(Code a,Code b);
 

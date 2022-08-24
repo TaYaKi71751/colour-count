@@ -4,68 +4,60 @@
 #include<stdbool.h>
 #include<string.h>
 #include "../include/count.h"
+#include "../include/string.h"
 
 bool matchRGBA(Code a,Code b){
 	return !memcmp(a,b,sizeof(Code));
 }
 
-char* to_json(ResultArray* ra){
-	int length = 0, tmp_length = 0;
-	char* json = calloc(length,sizeof(char));
-	char* json_tmp = calloc(length + tmp_length,sizeof(char));
-	char* tmp = calloc(tmp_length,sizeof(char));
+string* to_json(ResultArray* ra){
+	string *json,*tmp;
+	json = calloc(1,sizeof(string));
+	tmp = calloc(1,sizeof(string));
 
-	tmp_length = sprintf(tmp,"%s","[");
-//STRCAT
-	json_tmp = calloc(length,sizeof(char));
-	memcpy(json_tmp,json,length);
-	json = calloc(length + tmp_length,sizeof(char));
-	memcpy(json,json_tmp,length);
-	memcpy(json + length,tmp,tmp_length);
-	length += tmp_length;
+	json -> length = tmp -> length = 0;
+
+	tmp -> value = calloc(tmp -> length,sizeof(char));
+	json -> value = calloc(json -> length,sizeof(char));
 
 	for(int i = 0;i < ra -> length;i++){
-		tmp_length = sprintf(tmp,
-			"{\"rgba\":\"#%.2x%.2x%.2x%.2x\",\"count\":%u}%s",
-			*((ra -> arr + i) -> rgba + 0),
-			*((ra -> arr + i) -> rgba + 1),
-			*((ra -> arr + i) -> rgba + 2),
-			*((ra -> arr + i) -> rgba + 3),
-			((ra -> arr + i) -> count),
-			ra -> length - 1 == i ? "" : ","
+		char * tmp_value;
+		tmp = calloc(1,sizeof(string));
+
+		tmp -> length = sprintf(tmp_value,
+			"%s{\"rgba\":\"#%.2x%.2x%.2x%.2x\",\"count\":%u}%s",
+			0 == i ? "[" : "",
+			*((*(ra -> arr + i)) -> rgba + 0),
+			*((*(ra -> arr + i)) -> rgba + 1),
+			*((*(ra -> arr + i)) -> rgba + 2),
+			*((*(ra -> arr + i)) -> rgba + 3),
+			((*(ra -> arr + i)) -> count),
+			ra -> length - 1 == i ? "]" : ","
 		);
+		tmp -> value = calloc(tmp -> length,sizeof(char));
+		memcpy(tmp -> value,tmp_value,tmp -> length);
 
-//STRCAT
-		json_tmp = calloc(length,sizeof(char));
-		memcpy(json_tmp,json,length);
-		json = calloc(length + tmp_length,sizeof(char));
-		memcpy(json,json_tmp,length);
-		memcpy(json + length,tmp,tmp_length);
-		length += tmp_length;
+		strcat_memcpy(json,tmp);
+		free(tmp -> value);
+		free(tmp);
 	}
-
-	tmp_length = sprintf(tmp,"%s","]");
-
-// STRCAT
-	json_tmp = calloc(length,sizeof(char));
-	memcpy(json_tmp,json,length);
-	json = calloc(length + tmp_length,sizeof(char));
-	memcpy(json,json_tmp,length);
-	memcpy(json + length,tmp,tmp_length);
-	length += tmp_length;
 
 	return json;
 }
 
 void append(Code c,ResultArray* ra){
 	size_t l = ra -> length;
-	size_t s = sizeof(*(ra -> arr));
-	Result* tmp = calloc(l + 1,sizeof(Result));
+	size_t s = sizeof(Result*);
+	Result** tmp = calloc(l,s);
+	Result** free_target = ra -> arr;
 	memcpy(tmp,ra -> arr,s * l);
-	ra -> arr = calloc(l + 1,sizeof(Result));
+	ra -> arr = calloc(l + 1, s);
+	*(ra -> arr + l) = calloc(1,sizeof(Result));
+	free(free_target);
 	memcpy(ra -> arr,tmp,s * l);
-	memcpy(ra -> arr + l,c,sizeof(Code));
-	(ra -> arr + l) -> count = 0;
+	free(tmp);
+	memcpy(*(ra -> arr + l),c,sizeof(Code));
+	(*(ra -> arr + l)) -> count = 0;
 	ra -> length++;
 }
 
@@ -75,7 +67,7 @@ void count(Code c,ResultArray* ra){
 		append(c, ra);
 		count(c, ra);
 	} else {
-		(ra -> arr + i) -> count++;
+		(*(ra -> arr + i)) -> count++;
 		return;
 	}
 }
@@ -85,7 +77,7 @@ int search(Code c, ResultArray* ra){
 	for(int i = 0;i < ra -> length;i++){
 		if(!matchRGBA(
 			(c),
-			(ra -> arr + i) -> rgba
+			(*(ra -> arr + i)) -> rgba
 		)) { 
 			continue;
 		} else {
